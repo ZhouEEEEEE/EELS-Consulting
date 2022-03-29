@@ -31,15 +31,15 @@ library(ggplot2)
 
 ```{r}
 # load the data
-break_glass_in_case_of_emergency <- readRDS("~/sta303-w22-final-project-template/data-raw/break_glass_in_case_of_emergency.Rds")
+break_glass_in_case_of_emergency <- readRDS("data-raw/break_glass_in_case_of_emergency.Rds")
 
-cust_dev <- readRDS("~/sta303-w22-final-project-template/data-raw/cust_dev.Rds")
+cust_dev <- readRDS("data-raw/cust_dev.Rds")
 
-cust_sleep <- readRDS("~/sta303-w22-final-project-template/data-raw/cust_sleep.Rds")
+cust_sleep <- readRDS("data-raw/cust_sleep.Rds")
 
-customer <- readRDS("~/sta303-w22-final-project-template/data-raw/customer.Rds")
+customer <- readRDS("data-raw/customer.Rds")
 
-device <- readRDS("~/sta303-w22-final-project-template/data-raw/device.Rds")
+device <- readRDS("data-raw/device.Rds")
 
 ```
 
@@ -105,6 +105,7 @@ median_income <- census_data_csd %>%
   mutate(CSDuid = parse_number(CSDuid)) %>% 
   rename(hhld_median_inc = 2)
 ```
+
 ```{r}
 library(haven)
 library(tidyverse)
