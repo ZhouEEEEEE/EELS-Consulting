@@ -117,6 +117,36 @@ postcode <- dataset %>%
   select(PC, CSDuid)
 ```
 
+```{r}
+# Check NAs
+# median income
+num_na <-sapply(median_income, function(x) sum(length(which(is.na(x)))))
+knitr::kable(data.frame(num_na), caption = "Number of missing values for each variable in median_income")
+```
+
+```{r}
+# Check NAs
+# postcode
+num_na <-sapply(postcode, function(x) sum(length(which(is.na(x)))))
+knitr::kable(data.frame(num_na), caption = "Number of missing values for each variable in postcode")
+```
+
+```{r}
+# Check NAs
+num_na_1 <-sapply(cust_dev, function(x) sum(length(which(is.na(x)))))
+num_na_2 <-sapply(cust_sleep, function(x) sum(length(which(is.na(x)))))
+num_na_3 <-sapply(customer, function(x) sum(length(which(is.na(x)))))
+num_na_4 <-sapply(device, function(x) sum(length(which(is.na(x)))))
+
+knitr::kable(data.frame(num_na_1), caption = "Number of missing values for each variable in cust_dev")
+knitr::kable(data.frame(num_na_2), caption = "Number of missing values for each variable in cust_sleep")
+knitr::kable(data.frame(num_na_3), caption = "Number of missing values for each variable in customer")
+knitr::kable(data.frame(num_na_4), caption = "Number of missing values for each variable in device")
+
+```
+
+
+
 ```{r, warning=FALSE}
 library(eeptools)
 # dataset containing all customers
@@ -128,7 +158,7 @@ postal_income <- full_join(postcode, median_income, by = "CSDuid") %>%
   rename(postcode = PC)
 
 # match median income with each customer by postal code
-data <- left_join(data,postal_income, by = "postcode") %>%
+data <- left_join(data,postal_income, by = "postcode")
 
 # calculate age
 data <- data %>%  
@@ -160,6 +190,17 @@ active_data <- data %>%
 advance_active <- data %>%
   filter(line == "Active"|line == "Advance")
 ```
+
+```{r}
+# Check NAs after joining
+num_na_data <-sapply(data, function(x) sum(length(which(is.na(x)))))
+knitr::kable(data.frame(num_na_data), caption = "Number of missing values for each variable in data")
+
+num_na_advance_active <-sapply(advance_active, function(x) sum(length(which(is.na(x)))))
+knitr::kable(data.frame(num_na_advance_active), caption = "Number of missing values for each variable in data")
+```
+
+
 ```{r}
 # EDA
 
@@ -169,6 +210,7 @@ hist(advance_data$age, breaks = 20)
 hist(active_data$age, breaks = 20)
 # an age gap in active data
 ```
+
 ```{r}
 # sex
 ggplot(data, aes(x = sex, fill = age_group)) + geom_bar()
