@@ -150,33 +150,30 @@ knitr::kable(data.frame(num_na_4), caption = "Number of missing values for each 
 ```{r, warning=FALSE}
 library(eeptools)
 # dataset containing all customers
+
 data <- full_join(cust_dev, customer, by = "cust_id") %>%
   left_join(device, by = "dev_id")
+
+# calculate age
+data <- data %>%  
+  mutate(age = age_calc(dob,units = "years")) %>% 
+  mutate(age_group = case_when(age >= 70 ~ "over 70", 
+                               60 <= age && age < 70 ~ "60 ~ 70",
+                               50 <= age && age< 60 ~ "50 ~ 60", 
+                               40 <= age && age < 50 ~ "40 ~ 50",
+                               30 <= age && age < 40 ~ "30 ~ 40",
+                               20 <= age && age < 30 ~ "20 ~ 30",
+                               20 > age ~ "under 20",))
 
 # join postal code dataset with median income
 postal_income <- full_join(postcode, median_income, by = "CSDuid") %>%
   rename(postcode = PC)
 
 # match median income with each customer by postal code
+
 data <- left_join(data,postal_income, by = "postcode")
 
-# calculate age
-data <- data %>%  
-  mutate(age = age_calc(dob,units = "years")) %>%
-  mutate(age_group = if (age > 70) {
-    age_group = "over 70"
-  } else if (age > 60) {
-    age_group = "60~70"
-  } else if (age > 50) {
-    age_group = "50~60"
-  } else if (age > 40) {
-    age_group = "40~50"
-  } else if (age > 30) {
-    age_group = "30~40"
-  } else if (age > 20) {
-    age_group = "20~30"
-  } else 
-    age_group = "under 20")
+
 
 # dataset containing only customers using advance product
 advance_data <- data %>%
@@ -209,52 +206,74 @@ hist(data$age, breaks = 20)
 hist(advance_data$age, breaks = 20)
 hist(active_data$age, breaks = 20)
 # an age gap in active data
+hist(advance_active$age)
 ```
 
 ```{r}
 # sex
-ggplot(data, aes(x = sex, fill = age_group)) + geom_bar()
-ggplot(advance_data, aes(x = sex, fill = age_group)) + geom_bar()
-ggplot(active_data, aes(x = sex, fill = age_group)) + geom_bar()
-sex_proportion <- data %>%
+ggplot(data, aes(x = sex, fill = age_group)) + geom_bar() + ggtitle("Full dataset")
+ggplot(advance_data, aes(x = sex, fill = age_group)) + geom_bar() + ggtitle("Advance custormer")
+ggplot(active_data, aes(x = sex, fill = age_group)) + geom_bar() + ggtitle("Active custormer")
+ggplot(advance_active, aex(x= sex, fill = age_group))+ geom_bar + ggtitle("Active and Advance customer")
+
+sex_proportion_full<- data %>%
   group_by(sex) %>%
   summarise(prop = n()/29372)
-sex_proportion <- advance_data %>%
+sex_count_full<- table(data$age_group, data$sex)
+
+sex_proportion_adv<- advance_data %>%
   group_by(sex) %>%
   summarise(prop = n()/12321)
-sex_proportion <- active_data %>%
+sex_count_adv <- table(advance_data$age_group, advance_data$sex)
+
+sex_proportion_act <- active_data %>%
   group_by(sex) %>%
   summarise(prop = n()/3308)
+sex_count_act <-table(active_data$age_group, active_data$sex)
 # similar result of 57% female and 40% male
+
+
+sex_proportion_act_adv <- advance_active %>% 
+  group_by(sex) %>% 
+  summarise(prop = n() / nrow(advance_active))
+sex_count_act_adv <- tabel(advance_active$age_group, advance_active$sex)
+
+            
+            
 ```
+
 ```{r}
 # emoji
 ggplot(data, aes(x = emoji_modifier, fill = sex)) + geom_bar()
 ggplot(advance_data, aes(x = emoji_modifier, fill = sex)) + geom_bar()
 ggplot(active_data, aes(x = emoji_modifier, fill = sex)) + geom_bar()
 ```
+
 ```{r}
 ggplot(data, aes(x = emoji_modifier, fill = age_group)) + geom_bar()
 ggplot(advance_data, aes(x = emoji_modifier, fill = age_group)) + geom_bar()
 ggplot(active_data, aes(x = emoji_modifier, fill = age_group)) + geom_bar()
 ```
+
 ```{r}
 # device name
 ggplot(data, aes(x = device_name, fill = sex)) + geom_bar() + theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
 ggplot(advance_data, aes(x = device_name, fill = sex)) + geom_bar() + theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
 ggplot(active_data, aes(x = device_name, fill = sex)) + geom_bar() + theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
 ```
+
 ```{r}
 ggplot(data, aes(x = device_name, fill = age_group)) + geom_bar() + theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
 ggplot(advance_data, aes(x = device_name, fill = age_group)) + geom_bar() + theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
 ggplot(active_data, aes(x = device_name, fill = age_group)) + geom_bar() + theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
 ```
 ```{r}
-ggplot(data, aes(x = age, y = hhld_median_inc, color = line)) + geom_point()
-ggplot(advance_active, aes(x = age, y = hhld_median_inc, color = line)) + geom_point(size = 1)
-ggplot(advance_data, aes(x = age, y = hhld_median_inc, color = emoji_modifier)) + geom_point()
-ggplot(active_data, aes(x = age, y = hhld_median_inc, color = emoji_modifier)) + geom_point()
+ggplot(data, aes(x = age, y = hhld_median_inc, color = line)) + geom_smooth()
+ggplot(advance_active, aes(x = age, y = hhld_median_inc, color = line)) + geom_smooth()
+ggplot(advance_data, aes(x = age, y = hhld_median_inc, color = emoji_modifier)) + geom_smooth()
+ggplot(active_data, aes(x = age, y = hhld_median_inc, color = emoji_modifier)) + geom_smooth()
 ```
+
 ```{r}
 hist(data$hhld_median_inc, breaks = 100, xlim = c(40000,200000))
 hist(advance_data$hhld_median_inc, breaks = 100, xlim = c(40000,120000))
@@ -266,7 +285,6 @@ hist(active_data$hhld_median_inc, breaks = 50, xlim = c(40000,120000))
 ggplot(data, aes(x = hhld_median_inc, color = sex, )) + geom_bar()  +
     scale_x_continuous(breaks = 1:50) + facet_wrap(~emoji_modifier)
 ```
-
 
 
 
