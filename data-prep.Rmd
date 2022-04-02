@@ -173,6 +173,9 @@ postal_income <- full_join(postcode, median_income, by = "CSDuid") %>%
 
 data <- left_join(data,postal_income, by = "postcode")
 
+data <- data %>% 
+  mutate(customer_type = case_when(line == "Active" || line == "Advance" ~ "New",
+                                   TRUE ~ "Traditional",))
 
 
 # dataset containing only customers using advance product
@@ -214,7 +217,7 @@ hist(advance_active$age)
 ggplot(data, aes(x = sex, fill = age_group)) + geom_bar() + ggtitle("Full dataset")
 ggplot(advance_data, aes(x = sex, fill = age_group)) + geom_bar() + ggtitle("Advance custormer")
 ggplot(active_data, aes(x = sex, fill = age_group)) + geom_bar() + ggtitle("Active custormer")
-ggplot(advance_active, aex(x= sex, fill = age_group))+ geom_bar + ggtitle("Active and Advance customer")
+ggplot(advance_active, aes(x= sex, fill = age_group))+ geom_bar + ggtitle("Active and Advance customer")
 
 sex_proportion_full<- data %>%
   group_by(sex) %>%
@@ -285,7 +288,34 @@ hist(active_data$hhld_median_inc, breaks = 50, xlim = c(40000,120000))
 ggplot(data, aes(x = hhld_median_inc, color = sex, )) + geom_bar()  +
     scale_x_continuous(breaks = 1:50) + facet_wrap(~emoji_modifier)
 ```
+```{r}
+# line
+ggplot(data, aes(x = line, fill = age_group)) + geom_bar() + theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
+ggplot(advance_data, aes(x = line, fill = age_group)) + geom_bar() + theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
+ggplot(active_data, aes(x = line, fill = age_group)) + geom_bar() + theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
+```
 
+```{r}
+ggplot(data, aes(x= line, fill = sex)) + geom_bar()
+```
+
+```{r}
+# How is the age of the new customer different from the traditional customer
+ggplot(data, aes(x = customer_type, y = age)) + geom_boxplot()
+
+
+# how is the age of new customer different from the traditional customer
+age_group <- table(data$age_group, data$line)
+age_group
+customer_type <- table(data$age_group, data$customer_type)
+customer_type
+```
+
+```{r}
+# how is new_customer sex
+sex <- table(data$customer_type, data$sex)
+sex
+```
 
 
 
