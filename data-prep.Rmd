@@ -211,6 +211,8 @@ sex_proportion <- new_data %>%
 sex_proportion <- old_data %>%
   group_by(sex) %>%
   summarise(prop = n()/13471)
+
+data = data %>% mutate(new_customer = ifelse(line == "Active" | line == "Advance", 1,0))
 ```
 ```{r}
 # emoji
@@ -251,5 +253,15 @@ ggplot(data, aes(x = hhld_median_inc, color = sex, )) + geom_bar()  +
     scale_x_continuous(breaks = 1:50) + facet_wrap(~emoji_modifier)
 ```
 
+```{r}
+m1 <- lm(hhld_median_inc ~ new_customer, data = data)
+summary(m1)
+confint(m1)
+
+model <- glm(new_customer ~ hhld_median_inc + age + sex + emoji_modifier, family= binomial(link = "logit"), data = data)
+summary(model)
+model2 <- glm(new_customer ~ hhld_median_inc + age + sex + emoji_modifier + population, family= binomial(link = "logit"), data = data)
+summary(model2)
+```
 
 
